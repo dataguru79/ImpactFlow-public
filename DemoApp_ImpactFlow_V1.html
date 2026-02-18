@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact Flow - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            position: relative;
+            color: white;
+            margin-bottom: 30px;
+            padding: 40px 20px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+        
+        .logo-container {
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            width: 180px;
+            height: 180px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .header-text {
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        /* Responsive design for mobile */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-text {
+                text-align: center;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+        }
+        
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .view-toggle button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            color: #667eea;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .view-toggle button.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .view-toggle button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .view-content {
+            display: none;
+        }
+        
+        .view-content.active {
+            display: block;
+        }
+        
+        /* Employee View Styles */
+        .employee-view {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .topic-selection {
+            margin-bottom: 30px;
+        }
+        
+        .topic-selection h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .topic-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .topic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .topic-card.selected {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: scale(1.05);
+        }
+        
+        .topic-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        .topic-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .recording-section {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .recording-section.active {
+            display: block;
+        }
+        
+        .voice-input {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .mic-button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 3em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .mic-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.3);
+        }
+        
+        .mic-button.recording {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .conversation-area {
+            margin-top: 30px;
+            min-height: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .message {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        
+        .message.ai {
+            background: #e3f2fd;
+            margin-right: auto;
+        }
+        
+        .message.user {
+            background: #f3e5f5;
+            margin-left: auto;
+        }
+        
+        .message strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #667eea;
+        }
+        
+        .submit-btn {
+            display: block;
+            margin: 30px auto 0;
+            padding: 15px 50px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Management Dashboard Styles */
+        .dashboard {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .reports-list {
+            margin-top: 30px;
+        }
+        
+        .report-item {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .report-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .report-item.priority-high {
+            border-left-color: #f5576c;
+        }
+        
+        .report-item.priority-medium {
+            border-left-color: #ffa726;
+        }
+        
+        .report-item.priority-low {
+            border-left-color: #66bb6a;
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .report-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .report-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .badge.topic {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge.type {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .badge.impact {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .badge.date {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .report-text {
+            color: #666;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        
+        .report-suggestion {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            font-style: italic;
+            color: #2e7d32;
+        }
+        
+        .impact-icons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .impact-icon {
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .impact-icon.kosten {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .impact-icon.zeit {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .impact-icon.umsatz {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .impact-icon.kunden {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .chart-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chart-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" class="logo">
+                  <defs>
+                    <linearGradient id="flowGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+                      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="flowGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="impactGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+                      <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Main circular flow -->
+                  <g transform="translate(200, 200)">
+                    <!-- Flow circles representing information flow - pulsing alternately with people -->
+                    <circle cx="-80" cy="-60" r="25" fill="url(#flowGrad1)" opacity="0.8">
+                      <animate attributeName="r" values="25;28;25" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                    </circle>
+
+                    <circle cx="0" cy="-90" r="30" fill="url(#flowGrad2)" opacity="0.8">
+                      <animate attributeName="r" values="30;34;30" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                    </circle>
+
+                    <circle cx="80" cy="-60" r="25" fill="url(#flowGrad1)" opacity="0.8">
+                      <animate attributeName="r" values="25;28;25" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                    </circle>
+
+                    <circle cx="90" cy="30" r="28" fill="url(#flowGrad2)" opacity="0.8">
+                      <animate attributeName="r" values="28;32;28" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                    </circle>
+
+                    <circle cx="40" cy="85" r="26" fill="url(#flowGrad1)" opacity="0.8">
+                      <animate attributeName="r" values="26;29;26" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                    </circle>
+
+                    <circle cx="-40" cy="85" r="26" fill="url(#flowGrad2)" opacity="0.8">
+                      <animate attributeName="r" values="26;29;26" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                    </circle>
+
+                    <circle cx="-90" cy="30" r="28" fill="url(#flowGrad1)" opacity="0.8">
+                      <animate attributeName="r" values="28;32;28" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+                    </circle>
+
+                    <!-- Connecting flow lines - orbital paths like atoms -->
+                    <g stroke="url(#flowGrad1)" stroke-width="5" fill="none" opacity="0.5">
+                      <!-- Inner orbit -->
+                      <ellipse cx="0" cy="0" rx="100" ry="60" transform="rotate(-20)"/>
+                      <!-- Middle orbit -->
+                      <ellipse cx="0" cy="0" rx="100" ry="60" transform="rotate(20)"/>
+                      <!-- Outer orbit -->
+                      <ellipse cx="0" cy="0" rx="100" ry="60" transform="rotate(60)"/>
+                    </g>
+
+                    <!-- Central people silhouettes (nucleus) -->
+                    <g>
+                      <!-- Person 1 (left) -->
+                      <g transform="translate(-25, -5)">
+                        <circle cx="0" cy="-8" r="10" fill="#0ea5e9">
+                          <animate attributeName="opacity" values="1;0.6;1" dur="3s" repeatCount="indefinite"/>
+                        </circle>
+                        <path d="M -12,2 Q -12,-1 -10,-1 L 10,-1 Q 12,-1 12,2 L 12,25 Q 12,28 10,28 L -10,28 Q -12,28 -12,25 Z" fill="#0ea5e9">
+                          <animate attributeName="opacity" values="1;0.6;1" dur="3s" repeatCount="indefinite"/>
+                        </path>
+                      </g>
+                      
+                      <!-- Person 2 (center) -->
+                      <g transform="translate(0, -8)">
+                        <circle cx="0" cy="-10" r="12" fill="#10b981">
+                          <animate attributeName="opacity" values="1;0.6;1" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <path d="M -14,2 Q -14,-2 -11,-2 L 11,-2 Q 14,-2 14,2 L 14,28 Q 14,32 11,32 L -11,32 Q -14,32 -14,28 Z" fill="#10b981">
+                          <animate attributeName="opacity" values="1;0.6;1" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+                        </path>
+                      </g>
+                      
+                      <!-- Person 3 (right) -->
+                      <g transform="translate(25, -5)">
+                        <circle cx="0" cy="-8" r="10" fill="#0ea5e9">
+                          <animate attributeName="opacity" values="1;0.6;1" dur="3s" begin="1s" repeatCount="indefinite"/>
+                        </circle>
+                        <path d="M -12,2 Q -12,-1 -10,-1 L 10,-1 Q 12,-1 12,2 L 12,25 Q 12,28 10,28 L -10,28 Q -12,28 -12,25 Z" fill="#0ea5e9">
+                          <animate attributeName="opacity" values="1;0.6;1" dur="3s" begin="1s" repeatCount="indefinite"/>
+                        </path>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+            </div>
+            <div class="header-text">
+                <h1>Impact Flow</h1>
+                <p>Transparenz schaffen, Impact generien</p>
+				<p>Von Mitarbeitern, für Mitarbeiter - unterstützt durch KI</p>
+            </div>
+        </div>
+        
+        <div class="view-toggle">
+            <button class="active" onclick="switchView('employee')">👤 Impact generieren</button>
+            <button onclick="switchView('management')">📊 Impact Überblick</button>
+        </div>
+        
+        <!-- Employee View -->
+        <div id="employeeView" class="view-content active">
+            <div class="employee-view">
+                <div class="topic-selection">
+                    <h2>Wählen Sie ein Themengebiet:</h2>
+                    <div class="topics">
+                        <div class="topic-card" onclick="selectTopic('bottleneck')">
+                            <h3>⚠️ Bottlenecks</h3>
+                            <p>Engpässe und Verzögerungen in der Produktion</p>
+                        </div>
+                        <div class="topic-card" onclick="selectTopic('6s')">
+                            <h3>🧹 Störung 6S</h3>
+                            <p>Ordnung, Sauberkeit und Standardisierung</p>
+                        </div>
+                        <div class="topic-card" onclick="selectTopic('muda')">
+                            <h3>♻️ Verschwendung</h3>
+                            <p>Material-, Zeit- und Ressourcenverschwendung</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="recordingSection" class="recording-section">
+                    <div class="voice-input">
+                        <h2 id="topicTitle">Ihre Meldung</h2>
+                        <p style="color: #666; margin-bottom: 20px;">Klicken Sie auf das Mikrofon und sprechen Sie Ihre Meldung. Das System stellt interaktive Fragen.</p>
+                        
+                        <button class="mic-button" onclick="toggleRecording()">
+                            🎤
+                        </button>
+                        
+                        <p id="recordingStatus" style="color: #667eea; font-weight: 600;">Bereit zum Aufnehmen</p>
+                        
+                        <div class="conversation-area" id="conversationArea">
+                            <p style="text-align: center; color: #999;">Die Konversation wird hier angezeigt...</p>
+                        </div>
+                        
+                        <button class="submit-btn" onclick="submitReport()" id="submitBtn" style="display: none;">
+                            Meldung absenden
+                        </button>
+                    </div>
+                    
+                    <div class="success-message" id="successMessage">
+                        <h3>✅ Meldung erfolgreich übermittelt!</h3>
+                        <p>Vielen Dank für Ihren Beitrag zur kontinuierlichen Verbesserung.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Management Dashboard -->
+        <div id="managementView" class="view-content">
+            <div class="dashboard">
+                <h2 style="color: #333; margin-bottom: 30px;">📊 Management-Dashboard</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>20</h3>
+                        <p>Gesamt Meldungen</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <h3>13</h3>
+                        <p>Verbesserungsvorschläge</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <h3>7</h3>
+                        <p>Beschwerden</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <h3>85%</h3>
+                        <p>Mit Impact auf Zeit</p>
+                    </div>
+                </div>
+                
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Meldungen nach Themengebiet</h3>
+                        <div style="margin-top: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>Störung 6S</span>
+                                <strong style="color: #667eea;">10 (50%)</strong>
+                            </div>
+                            <div style="background: #e0e0e0; height: 8px; border-radius: 5px; overflow: hidden;">
+                                <div style="width: 50%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; margin: 15px 0 10px;">
+                                <span>Bottlenecks</span>
+                                <strong style="color: #f093fb;">9 (45%)</strong>
+                            </div>
+                            <div style="background: #e0e0e0; height: 8px; border-radius: 5px; overflow: hidden;">
+                                <div style="width: 45%; height: 100%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; margin: 15px 0 10px;">
+                                <span>Verschwendung</span>
+                                <strong style="color: #43e97b;">1 (5%)</strong>
+                            </div>
+                            <div style="background: #e0e0e0; height: 8px; border-radius: 5px; overflow: hidden;">
+                                <div style="width: 5%; height: 100%; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3>Business Impact Kategorien</h3>
+                        <div style="margin-top: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>⏱️ Zeitersparnis</span>
+                                <strong>17</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>💰 Kosten</span>
+                                <strong>12</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>📈 Umsatz</span>
+                                <strong>8</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>😊 Kundenzufriedenheit</span>
+                                <strong>7</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="color: #333; margin: 30px 0 20px;">Filter & Sortierung</h3>
+                <div class="filters">
+                    <button class="filter-btn active" onclick="filterReports('all')">Alle (20)</button>
+                    <button class="filter-btn" onclick="filterReports('Störung 6 S')">Störung 6S (10)</button>
+                    <button class="filter-btn" onclick="filterReports('Bottlenecks')">Bottlenecks (9)</button>
+                    <button class="filter-btn" onclick="filterReports('Verschwendung')">Verschwendung (1)</button>
+                    <button class="filter-btn" onclick="filterReports('Verbesserungsvorschlag')">Vorschläge (13)</button>
+                    <button class="filter-btn" onclick="filterReports('Beschwerde')">Beschwerden (7)</button>
+                </div>
+                
+                <div class="reports-list" id="reportsList">
+                    <!-- Reports will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data from the Excel file
+        const reportsData = [
+            {"ID":1,"Meldedatum":"2025-01-02","Themengebiet":"Störung 6 S","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Optimierung der Werkzeuglagerung für Maschine A","Meldungstext":"Die Werkzeuge für die Wartung der Maschine A sind momentan in einem Schrank am Ende der Halle gelagert. Das führt dazu, dass bei jeder Wartung unnötig viel Zeit für den Weg und das Suchen der passenden Werkzeuge benötigt wird. Es wäre sinnvoller, einen kleinen Werkzeugwagen direkt neben Maschine A zu stationieren, der nur die notwendigen Werkzeuge enthält. Das würde die Rüst- und Wartungszeiten deutlich verkürzen.","Vorschlag":"Bereitstellung eines Werkzeugwagens direkt an Maschine A mit den notwendigen Werkzeugen","Business Impact":"Die verkürzten Wartungszeiten führen zu einer höheren Verfügbarkeit der Maschine und damit zu einer Steigerung des Outputs.","Impact Kategorien":"Umsatz,Zeitersparnis","Kosten":"nein","Kundenzufriedenheit":"nein","Umsatz":"ja","Zeit":"ja"},
+            {"ID":2,"Meldedatum":"2025-01-07","Themengebiet":"Störung 6 S","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Undeutliche Bodenmarkierungen im Lager","Meldungstext":"Im Lagerbereich der Abteilung X sind die Markierungen für die Laufwege und Lagerzonen stark abgenutzt und an manchen Stellen nicht mehr sichtbar. Das führt regelmäßig zu Verwechslungen bei der Materialentnahme und erhöht das Risiko von Stolperunfällen oder Kollisionen mit Flurförderzeugen.","Vorschlag":"Die Markierungen sollten dringend erneuert und idealerweise mit einem haltbareren Material ausgeführt werden.","Business Impact":"Reduzierung der Suchzeiten und Vermeidung von Unfällen, was zu geringeren Ausfallzeiten führt.","Impact Kategorien":"Kosten,Zeitersparnis","Kosten":"ja","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"ja"},
+            {"ID":3,"Meldedatum":"2025-01-22","Themengebiet":"Störung 6 S","Meldungstyp":"Beschwerde","Meldungstitel":"Unorganisierter Werkzeugbereich Sektor B","Meldungstext":"Die Werkzeuge in Sektor B sind oft verstreut und nicht an ihrem definierten Platz, was zu langen Suchzeiten führt","Vorschlag":"Eine klare Kennzeichnung und systematische Anordnung aller Werkzeuge und Materialien sollte eingeführt werden, um Suchzeiten zu minimieren und die Einhaltung der 6S-Standards zu gewährleisten","Business Impact":"Die Suchzeiten verzögern den Produktionsprozess und führen potenziell zu verspäteten Lieferungen","Impact Kategorien":"Zeitersparnis,Kundenzufriedenheit","Kosten":"nein","Kundenzufriedenheit":"ja","Umsatz":"nein","Zeit":"ja"},
+            {"ID":4,"Meldedatum":"2025-01-26","Themengebiet":"Störung 6 S","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Fehlende Standardisierung bei Werkzeugkennzeichnung","Meldungstext":"Aufgrund fehlender Standardisierung bei der Kennzeichnung von Werkzeugen kommt es häufig zu Suchzeiten und Verwechslungen an der Montagelinie. Dadurch verzögert sich die Fertigung, und es besteht das Risiko, dass falsche Teile verbaut werden, was zu Reklamationen führen kann.","Vorschlag":"Es sollte ein einheitliches, farbcodiertes System zur Kennzeichnung aller Werkzeuge eingeführt und alle Mitarbeiter entsprechend geschult werden.","Business Impact":"Die Reduzierung von Fehlern in der Montage senkt die Ausschusskosten und erhöht die Produktqualität, was direkt die Kundenzufriedenheit verbessert und Nacharbeit reduziert.","Impact Kategorien":"Kundenzufriedenheit,Kosten,Zeitersparnis","Kosten":"ja","Kundenzufriedenheit":"ja","Umsatz":"nein","Zeit":"ja"},
+            {"ID":5,"Meldedatum":"2025-01-27","Themengebiet":"Bottlenecks","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Optimierung der Teilelagerung","Meldungstext":"Aufgrund der aktuellen Lagerstruktur müssen wir oft lange Wege zurücklegen, um die benötigten Teile zu finden, was zu unnötigen Verzögerungen in der Produktion führt","Vorschlag":"Einführung eines neuen, übersichtlicheren Lagersystems mit kürzeren Zugriffswegen und klarer Kennzeichnung","Business Impact":"Die Zeitersparnis pro Arbeitsgang wird auf 15 Minuten geschätzt, was die Gesamtproduktionszeit reduziert","Impact Kategorien":"Kosten,Zeitersparnis","Kosten":"ja","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"ja"},
+            {"ID":6,"Meldedatum":"2025-01-28","Themengebiet":"Bottlenecks","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Verzögerung an der Verpackungslinie durch Kartonzulieferung","Meldungstext":"Seit Wochen kommt es immer wieder zu längeren Wartezeiten an der Verpackungslinie, da die Zulieferung der Kartons oft verzögert ist. Dies führt dazu, dass die Mitarbeiter an der Linie unnötig warten müssen und die Taktzeit nicht eingehalten werden kann. Eine bessere Abstimmung mit dem Lager oder ein kleiner Pufferbestand an Kartons direkt an der Linie würde diesen Engpass beheben.","Vorschlag":"Einführung eines kleinen Pufferbestands an Kartons an der Linie und bessere Abstimmung mit dem Lager.","Business Impact":"Reduzierung unnötiger Wartezeiten an der Linie und Steigerung der Produktionseffizienz.","Impact Kategorien":"Zeitersparnis,Kosten","Kosten":"ja","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"ja"},
+            {"ID":7,"Meldedatum":"2025-01-31","Themengebiet":"Störung 6 S","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Unnötige Suchzeiten durch mangelnde Ordnung","Meldungstext":"Am Arbeitsplatz X lagern oft Werkzeuge und Materialien wahllos auf der Werkbank. Dies führt regelmäßig dazu, dass Mitarbeiter längere Zeit suchen müssen, was die Rüstzeiten unnötig verlängert und das Risiko von Fehlern erhöht.","Vorschlag":"Einführung einer klaren Struktur und Beschriftung für alle Werkzeuge und Materialien am Arbeitsplatz X (Systematisieren und Standardisieren der 6S)","Business Impact":"Die Reduzierung der Rüstzeiten und Suchvorgänge führt zu einer schnelleren Fertigung und erhöht damit den potenziellen Umsatz. Die geringere Fehlerquote verbessert direkt die Kundenzufriedenheit.","Impact Kategorien":"Umsatz, Kundenzufriedenheit","Kosten":"nein","Kundenzufriedenheit":"ja","Umsatz":"ja","Zeit":"nein"},
+            {"ID":8,"Meldedatum":"2025-02-05","Themengebiet":"Störung 6 S","Meldungstyp":"Beschwerde","Meldungstitel":"Unorganisierte Werkzeuge in der Montage","Meldungstext":"Die Werkzeuge in der Montagehalle sind oft nicht an ihrem zugewiesenen Platz im Werkzeugschrank, was zu langen Suchzeiten führt. Besonders kritisch ist das bei Schichtwechseln. Dies führt zu unnötigen Verzögerungen im Produktionsprozess.","Vorschlag":"Werkzeugschränke klarer beschriften und am Ende jeder Schicht eine 5-minütige Kontrollzeit für die Ordnung einführen.","Business Impact":"Die unnötigen Suchzeiten reduzieren die Gesamtproduktionszeit pro Schicht.","Impact Kategorien":"Kosten, Zeitersparnis","Kosten":"ja","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"ja"},
+            {"ID":9,"Meldedatum":"2025-02-10","Themengebiet":"Bottlenecks","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Rüstzeitoptimierung Maschine XY","Meldungstext":"Die Umstellung der Maschine XY dauert oft länger als geplant, da die benötigten Werkzeuge nicht immer griffbereit sind. Ich schlage vor, einen dedizierten Werkzeugwagen mit allen notwendigen Teilen direkt neben der Maschine zu positionieren und eine Checkliste für den Rüstvorgang einzuführen.","Vorschlag":"Einführung eines dedizierten Werkzeugwagens und einer Rüst-Checkliste","Business Impact":"Reduzierung der Umrüstzeiten um durchschnittlich 15 Minuten pro Vorgang","Impact Kategorien":"Zeitersparnis,Kosten","Kosten":"ja","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"ja"},
+            {"ID":10,"Meldedatum":"2025-02-10","Themengebiet":"Störung 6 S","Meldungstyp":"Beschwerde","Meldungstitel":"Unnötige Suchzeiten durch fehlende Werkzeugorganisation","Meldungstext":"Aufgrund fehlender Standardisierung bei der Ablage von Werkzeugen und Ersatzteilen kommt es regelmäßig zu unnötigen Suchzeiten und Verzögerungen in der Produktion. Dies führt nicht nur zu Frustration bei den Mitarbeitern, sondern verzögert auch die Fertigstellung von Aufträgen.","Vorschlag":"Einführung einer klaren 6S-Struktur (Sortieren und Systematisieren) in allen Arbeitsbereichen sowie Schulung der Mitarbeiter zur Einhaltung der neuen Standards.","Business Impact":"Die Verzögerungen bei der Fertigstellung wirken sich negativ auf die Lieferzeiten und damit direkt auf die Kundenzufriedenheit aus. Außerdem steigen die Kosten durch die ineffiziente Nutzung der Arbeitszeit.","Impact Kategorien":"Kundenzufriedenheit,Kosten,Zeitersparnis","Kosten":"ja","Kundenzufriedenheit":"ja","Umsatz":"nein","Zeit":"ja"},
+            {"ID":11,"Meldedatum":"2025-02-18","Themengebiet":"Bottlenecks","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Standardisierung der Teilebereitstellung","Meldungstext":"Aufgrund fehlender Standardisierung bei der Teilebereitstellung kommt es oft zu unnötigen Suchzeiten für die Mitarbeiter an der Montagelinie. Ein einheitliches Behältersystem mit klaren Kennzeichnungen würde diesen Suchaufwand erheblich reduzieren und die Rüstzeiten verkürzen.","Vorschlag":"Einführung eines einheitlichen, klar gekennzeichneten Behältersystems an der Montagelinie.","Business Impact":"Reduzierung der Such- und Rüstzeiten um schätzungsweise 15 Minuten pro Schicht.","Impact Kategorien":"Kosten,Zeitersparnis","Kosten":"ja","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"ja"},
+            {"ID":12,"Meldedatum":"2025-02-23","Themengebiet":"Bottlenecks","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Reduzierung von Maschinenstillständen","Meldungstext":"Die Häufigkeit, mit der die Hauptproduktionsmaschine aufgrund kleiner, wiederkehrender Fehler stoppt, ist in den letzten Wochen stark angestiegen. Dies führt zu unvorhergesehenen Wartezeiten und verlängert die Gesamtproduktionsdauer für bestimmte Aufträge. Es wäre hilfreich, wenn eine wöchentliche, kurze Wartungsroutine für diese Maschine eingeführt würde, um die bekanntesten Fehlerquellen proaktiv zu beheben, bevor sie zu einem Stillstand führen.","Vorschlag":"Einführung einer wöchentlichen Proaktiv-Wartung für die Hauptproduktionsmaschine.","Business Impact":"Eine höhere Zuverlässigkeit der Maschine reduziert Produktionsverzögerungen, was die Lieferzeiten verkürzt und die Kundenzufriedenheit steigert. Gleichzeitig können wir mehr Aufträge in der gleichen Zeit bearbeiten.","Impact Kategorien":"Kundenzufriedenheit, Umsatz","Kosten":"nein","Kundenzufriedenheit":"ja","Umsatz":"ja","Zeit":"nein"},
+            {"ID":13,"Meldedatum":"2025-02-24","Themengebiet":"Bottlenecks","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Materialbereitstellung Verpackungsmaschine 3","Meldungstext":"Die Wartezeit an der Verpackungsmaschine 3 ist oft sehr lang, da das Material aus Lagerhalle B immer erst auf Anforderung per Gabelstapler geholt werden muss. Dies führt zu unnötigen Leerlaufzeiten. Wenn das Material für die nächsten vier Stunden direkt an der Maschine bereitgestellt würde, könnten wir die Rüstzeiten reduzieren und die Produktivität steigieren.","Vorschlag":"Bereitstellung von Material für vier Stunden direkt an der Maschine","Business Impact":"Reduzierung von Wartezeiten und Steigerung der Produktion","Impact Kategorien":"Zeitersparnis,Umsatz","Kosten":"nein","Kundenzufriedenheit":"nein","Umsatz":"ja","Zeit":"ja"},
+            {"ID":14,"Meldedatum":"2025-02-26","Themengebiet":"Bottlenecks","Meldungstyp":"Beschwerde","Meldungstitel":"Wartezeiten an Montagelinie 3","Meldungstext":"An der Montagelinie 3 warten wir oft auf die Teile aus der CNC-Fertigung","Vorschlag":"Die Taktzeiten der CNC-Maschinen sollten besser auf die Montagelinie abgestimmt werden","Business Impact":"Längere Wartezeiten führen zu Verzögerungen in der Produktion","Impact Kategorien":"Zeitersparnis","Kosten":"nein","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"ja"},
+            {"ID":15,"Meldedatum":"2025-02-28","Themengebiet":"Bottlenecks","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Effizientere Materialausgabe","Meldungstext":"Die Wartezeiten an der Materialausgabe sind zu Stoßzeiten oft sehr lang, da nur eine Person für die Ausgabe zuständig ist. Dies führt zu unnötigen Verzögerungen in der Produktion.","Vorschlag":"Ja","Business Impact":"Durch die Bereitstellung einer zweiten Person während der Stoßzeiten kann die Wartezeit erheblich reduziert und die Produktionsgeschwindigkeit erhöht werden.","Impact Kategorien":"Umsatz, Zeitersparnis","Kosten":"nein","Kundenzufriedenheit":"nein","Umsatz":"ja","Zeit":"ja"},
+            {"ID":16,"Meldedatum":"2025-03-02","Themengebiet":"Störung 6 S","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Fehlende Standardisierung der Werkzeuglagerung","Meldungstext":"Die Werkzeuge für die Wartung der Maschine X sind nicht standardisiert an ihrem Lagerort. Wir verlieren dadurch jedes Mal bis zu 15 Minuten Suchzeit, da oft Werkzeuge fehlen oder in anderen Bereichen abgelegt wurden. Es wäre sinnvoll, für jedes Werkzeug einen festen Platz zu definieren (Schattenwand) und eine wöchentliche Kontrolle der Vollständigkeit durchzuführen","Vorschlag":"Einführung von Schattenwänden und wöchentlicher Vollständigkeitskontrolle","Business Impact":"Reduzierung der Suchzeiten bei der Wartung","Impact Kategorien":"Zeitersparnis,Kosten","Kosten":"ja","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"ja"},
+            {"ID":17,"Meldedatum":"2025-03-12","Themengebiet":"Bottlenecks","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Materialbereitstellungs-Engpässe","Meldungstext":"Derzeit müssen wir regelmäßig auf Material warten, da die Nachschublieferungen nicht synchronisiert sind. Dies führt zu unnötigen Stillstandszeiten an der Montagelinie. Es wäre effizienter, wenn ein Kanban-System für die Materialbereitstellung eingeführt würde, um Engpässe zu vermeiden.","Vorschlag":"Einführung eines Kanban-Systems zur Materialbereitstellung","Business Impact":"Reduzierung von Stillstandszeiten und Erhöhung des Durchsatzes","Impact Kategorien":"Umsatz,Zeitersparnis","Kosten":"nein","Kundenzufriedenheit":"nein","Umsatz":"ja","Zeit":"ja"},
+            {"ID":18,"Meldedatum":"2025-03-14","Themengebiet":"Störung 6 S","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Werkzeugablage standardisieren","Meldungstext":"Aufgrund fehlender Standardisierung bei der Ablage von Werkzeugen im Montagebereich kommt es regelmäßig zu Suchzeiten. Das verlangsamt den Fertigungsprozess. Die Einführung einer Schattenwand für die Werkzeuge würde die Suchzeiten eliminieren und die Rüstzeiten verkürzen.","Vorschlag":"Schattenwände für Werkzeuge im Montagebereich einführen.","Business Impact":"Reduzierung der Such- und Rüstzeiten, wodurch die Durchlaufzeit der Aufträge sinkt und schneller auf Kundenanfragen reagiert werden kann.","Impact Kategorien":"Zeitersparnis,Umsatz,Kundenzufriedenheit","Kosten":"nein","Kundenzufriedenheit":"ja","Umsatz":"ja","Zeit":"ja"},
+            {"ID":19,"Meldedatum":"2025-03-17","Themengebiet":"Verschwendung","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Materialeinsparung an Linie X","Meldungstext":"An der Montagelinie X fällt auf, dass nach dem letzten Arbeitsschritt oft überschüssiges Material weggeworfen wird, da die Zuschnitte zu groß sind","Vorschlag":"Die Maße für die Zuschnitte sollten um 5 mm reduziert werden","Business Impact":"Durch präzisere Zuschnitte können wir jährlich Materialkosten im Wert von geschätzt 15.000 Euro einsparen","Impact Kategorien":"Kosten","Kosten":"ja","Kundenzufriedenheit":"nein","Umsatz":"nein","Zeit":"nein"},
+            {"ID":20,"Meldedatum":"2025-03-21","Themengebiet":"Störung 6 S","Meldungstyp":"Verbesserungsvorschlag","Meldungstitel":"Fehlende/Ungeordnete Werkzeuge an Arbeitsplatz 3","Meldungstext":"Die Werkzeuge an Arbeitsplatz 3 sind oft nicht vollständig oder liegen ungeordnet herum. Das führt regelmäßig zu Suchzeiten und Verzögerungen beim Schichtwechsel. Ich schlage vor, die Schattenwände (Tool Boards) konsequenter zu nutzen und visuelle Standards für die Ablage einzuführen und zu überwachen","Vorschlag":"Einführung und Überwachung visueller Standards (Schattenwände) für Werkzeugablage","Business Impact":"Durch reduzierte Suchzeiten wird die Fertigungszeit verkürzt und die Einhaltung der Lieferzeiten verbessert. Dies senkt Kosten und erhöht die Kundenzufriedenheit, was wiederum den Umsatz positiv beeinflussen kann","Impact Kategorien":"Zeitersparnis,Kosten,Umsatz,Kundenzufriedenheit","Kosten":"ja","Kundenzufriedenheit":"ja","Umsatz":"ja","Zeit":"ja"}
+        ];
+        
+        let currentTopic = null;
+        let isRecording = false;
+        let conversationStep = 0;
+        let currentFilter = 'all';
+        
+        // Simulated conversation flow
+        const conversationFlows = {
+            'bottleneck': [
+                { ai: "Vielen Dank. Wo genau tritt dieser Engpass auf? Können Sie den Ort oder die Maschine nennen?" },
+                { ai: "Verstanden. Wie häufig tritt dieses Problem auf?" },
+                { ai: "Haben Sie bereits eine Idee, wie man das Problem lösen könnte?" },
+                { ai: "Welchen Business Impact hätte die Behebung dieses Problems?" }
+            ],
+            '6s': [
+                { ai: "Danke. In welchem Bereich tritt diese Ordnungsstörung auf?" },
+                { ai: "Was genau ist nicht ordnungsgemäß organisiert?" },
+                { ai: "Haben Sie einen Vorschlag zur Verbesserung?" },
+                { ai: "Wie würde sich die Verbesserung auf die Arbeit auswirken?" }
+            ],
+            'muda': [
+                { ai: "Vielen Dank. Wo wird Ihrer Meinung nach verschwendet?" },
+                { ai: "Um welche Art von Verschwendung handelt es sich (Material, Zeit, Bewegung)?" },
+                { ai: "Haben Sie eine Idee, wie man diese Verschwendung reduzieren kann?" },
+                { ai: "Welche Kostenersparnis erwarten Sie?" }
+            ]
+        };
+        
+        function switchView(view) {
+            const buttons = document.querySelectorAll('.view-toggle button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (view === 'employee') {
+                document.getElementById('employeeView').classList.add('active');
+                document.getElementById('managementView').classList.remove('active');
+            } else {
+                document.getElementById('employeeView').classList.remove('active');
+                document.getElementById('managementView').classList.add('active');
+                renderReports();
+            }
+        }
+        
+        function selectTopic(topic) {
+            currentTopic = topic;
+            conversationStep = 0;
+            
+            // Visual feedback
+            document.querySelectorAll('.topic-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.topic-card').classList.add('selected');
+            
+            // Show recording section
+            document.getElementById('recordingSection').classList.add('active');
+            
+            // Set title
+            const titles = {
+                'bottleneck': '⚠️ Bottleneck Meldung',
+                '6s': '🧹 6S Störung Meldung',
+                'muda': '♻️ Verschwendung Meldung'
+            };
+            document.getElementById('topicTitle').textContent = titles[topic];
+            
+            // Clear conversation
+            document.getElementById('conversationArea').innerHTML = '<p style="text-align: center; color: #999;">Klicken Sie auf das Mikrofon, um zu beginnen...</p>';
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('successMessage').classList.remove('show');
+        }
+        
+        function toggleRecording() {
+            isRecording = !isRecording;
+            const btn = event.target;
+            const status = document.getElementById('recordingStatus');
+            
+            if (isRecording) {
+                btn.classList.add('recording');
+                status.textContent = '🔴 Aufnahme läuft...';
+                status.style.color = '#f5576c';
+                
+                // Simulate first question
+                setTimeout(() => {
+                    addMessage('ai', 'Hallo! Bitte beschreiben Sie das Problem, das Sie melden möchten.');
+                }, 500);
+                
+            } else {
+                btn.classList.remove('recording');
+                status.textContent = 'Bereit zum Aufnehmen';
+                status.style.color = '#667eea';
+                
+                // Simulate user response and next question
+                if (conversationStep < conversationFlows[currentTopic].length) {
+                    setTimeout(() => {
+                        addMessage('user', '[Am Standort Dingolfing liegt folgende Situation vor.... ***simulierte Antwort***]');
+                        setTimeout(() => {
+                            addMessage('ai', conversationFlows[currentTopic][conversationStep].ai);
+                            conversationStep++;
+                            
+                            if (conversationStep >= conversationFlows[currentTopic].length) {
+                                document.getElementById('submitBtn').style.display = 'block';
+                            }
+                        }, 800);
+                    }, 300);
+                }
+            }
+        }
+        
+        function addMessage(type, text) {
+            const area = document.getElementById('conversationArea');
+            
+            // Clear initial message
+            if (area.querySelector('p[style*="text-align: center"]')) {
+                area.innerHTML = '';
+            }
+            
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            msg.innerHTML = `<strong>${type === 'ai' ? '🤖 KI-Assistent:' : '👤 Sie:'}</strong>${text}`;
+            area.appendChild(msg);
+            area.scrollTop = area.scrollHeight;
+        }
+        
+        function submitReport() {
+            document.getElementById('successMessage').classList.add('show');
+            document.getElementById('submitBtn').style.display = 'none';
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                document.getElementById('recordingSection').classList.remove('active');
+                document.querySelectorAll('.topic-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                currentTopic = null;
+                conversationStep = 0;
+            }, 3000);
+        }
+        
+        function filterReports(filter) {
+            currentFilter = filter;
+            
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderReports();
+        }
+        
+        function getPriority(report) {
+            const impactCount = report["Impact Kategorien"].split(',').length;
+            if (impactCount >= 3) return 'high';
+            if (impactCount >= 2) return 'medium';
+            return 'low';
+        }
+        
+        function renderReports() {
+            const container = document.getElementById('reportsList');
+            container.innerHTML = '';
+            
+            let filteredReports = reportsData;
+            
+            if (currentFilter !== 'all') {
+                filteredReports = reportsData.filter(r => 
+                    r.Themengebiet === currentFilter || r.Meldungstyp === currentFilter
+                );
+            }
+            
+            filteredReports.forEach(report => {
+                const priority = getPriority(report);
+                const div = document.createElement('div');
+                div.className = `report-item priority-${priority}`;
+                
+                const impactIcons = [];
+                if (report.Kosten === 'ja') impactIcons.push('<span class="impact-icon kosten">💰 Kosten</span>');
+                if (report.Zeit === 'ja') impactIcons.push('<span class="impact-icon zeit">⏱️ Zeit</span>');
+                if (report.Umsatz === 'ja') impactIcons.push('<span class="impact-icon umsatz">📈 Umsatz</span>');
+                if (report.Kundenzufriedenheit === 'ja') impactIcons.push('<span class="impact-icon kunden">😊 Kunden</span>');
+                
+                div.innerHTML = `
+                    <div class="report-header">
+                        <div class="report-title">${report.Meldungstitel}</div>
+                        <div class="report-meta">
+                            <span class="badge date">📅 ${new Date(report.Meldedatum).toLocaleDateString('de-DE')}</span>
+                            <span class="badge topic">${report.Themengebiet}</span>
+                            <span class="badge type">${report.Meldungstyp}</span>
+                        </div>
+                    </div>
+                    <div class="report-text">${report.Meldungstext}</div>
+                    ${report.Vorschlag ? `<div class="report-suggestion"><strong>💡 Vorschlag:</strong> ${report.Vorschlag}</div>` : ''}
+                    <div class="impact-icons">
+                        ${impactIcons.join('')}
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+        
+        // Initialize
+        renderReports();
+    </script>
+</body>
+</html>
